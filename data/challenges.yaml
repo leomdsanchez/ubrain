@@ -72,3 +72,51 @@
   output_format: "token"
   ground_truth: 4
   reward: 1.0
+
+- id: seq_lower_forward
+  prompt: ["a", "b", "c", "d", "?"]
+  output_format: "token"
+  ground_truth: "e"
+  reward: 1.0
+
+- id: seq_upper_reverse
+  prompt: ["Z", "Y", "X", "W", "?"]
+  output_format: "token"
+  ground_truth: "V"
+  reward: 1.0
+
+- id: seq_upper_skip_two
+  prompt: ["A", "C", "E", "G", "?"]
+  output_format: "token"
+  ground_truth: "I"
+  reward: 1.0
+
+- id: seq_lower_wrap
+  prompt: ["x", "y", "z", "a", "?"]
+  output_format: "token"
+  ground_truth: "b"
+  reward: 1.0
+
+- id: seq_vowels_cycle
+  prompt: ["a", "e", "i", "o", "?"]
+  output_format: "token"
+  ground_truth: "u"
+  reward: 1.0
+
+- id: seq_hex_even
+  prompt: ["0x2", "0x4", "0x6", "0x8", "?"]
+  output_format: "token"
+  ground_truth: "0xa"
+  reward: 1.0
+
+- id: seq_roman_increment
+  prompt: ["I", "II", "III", "IV", "?"]
+  output_format: "token"
+  ground_truth: "V"
+  reward: 1.0
+
+- id: seq_alphanum_increasing
+  prompt: ["A", 10, "B", 11, "C", "?"]
+  output_format: "token"
+  ground_truth: 12
+  reward: 1.0
