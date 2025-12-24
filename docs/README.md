@@ -95,13 +95,13 @@ Dataset e curriculo
   2) Regras compostas (saltos, alternancia, ciclos).  
   3) Matematica basica (progressao, Fibonacci, operacoes simples).  
   4) Imagens discretas (icones/grids, transformacoes simples).  
-- Metadados: enunciado canonico, ground truth, difficulty weight, formato de saida; dataset nao define budget.
+- Metadados: enunciado canonico, ground truth, reward base opcional, formato de saida; dataset nao define budget.
 
 Treino e pipeline
 -----------------
 - Pre-treino/fase 1: treinar difusao discreta para reconstruir estados limpos a partir de ruido (teacher-forced).  
 - Fase 2: ligar loop cognitivo completo com cabeca de decisao e calibracao de confidence; heuristica apenas para bootstrap/coleta inicial, removida apos a policy aprender.  
-- Fase 3: RL/fine-tune com reward final = qualidade x difficulty - custo(budget_used), penalidade para erro confiante e frustracao leve em IDK; logging pesado de entropia, satisfacao, taxa de IDK.  
+- Fase 3: RL/fine-tune com reward final = base fixa de acerto/erro/IDK - custo(budget_used), penalidade para erro confiante e frustracao leve em IDK; logging pesado de entropia, satisfacao, taxa de IDK.  
 - Distilacao/bootstrapping: cerebro pequeno ensina varicoes maiores; memoria externa usada como replay opcional.
 
 Experimentos planejados (PoC 64D)

@@ -20,14 +20,17 @@ def compute_reward(
     result: EpisodeResult,
     weights: RewardWeights,
     correct: Optional[bool],
+    reward_value: Optional[float] = None,
 ) -> float:
     """Compute final reward using fixed base quality minus cost.
 
     External reward is simple; most shaping comes from internal satisfaction.
     """
+    base = reward_value if reward_value is not None else weights.base_correct
+
     quality = 0.0
     if correct is True:
-        quality = weights.base_correct
+        quality = base
     elif correct is False:
         quality = -weights.wrong_confident_penalty
     else:

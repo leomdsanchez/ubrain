@@ -28,7 +28,7 @@ def load_challenges(path: str) -> ChallengeBatch:
             id=entry["id"],
             prompt=entry["prompt"],
             output_format=entry["output_format"],
-            difficulty=float(entry["difficulty"]),
+            reward=float(entry.get("reward", 1.0)),
             ground_truth=entry.get("ground_truth"),
         )
         items.append(challenge)

@@ -14,7 +14,7 @@ class Challenge:
     id: str
     prompt: Any  # tokenized input; can be text/earcon/icon tokens
     output_format: str  # closed format description (options/indices/patches)
-    difficulty: float  # e.g., 0.0-1.0 weight
+    reward: float = 1.0  # base reward for correct
     ground_truth: Optional[Any] = None  # used only in train/eval
 
 
