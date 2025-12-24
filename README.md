@@ -13,10 +13,10 @@ Estrutura
 - `docs/README.md`: especificacao e simulacoes de loop.
 - `src/ubrain/`: codigo do cerebro (tipos, policy, scheduler, difusao, avaliador, data specs).
 - `data/challenges.yaml`: dataset inicial de desafios fechados (formato YAML).
+- `tasks/`: briefings de modulos e plano de execucao por time.
 
 Proximos passos
 ---------------
-- Implementar `_extract_candidate`, `_estimate_signals`, `_is_better` no scheduler com instrumentacao real.
-- Adicionar modelo de difusao discreta concreto no modulo `diffusion`.
-- Criar dataset inicial de desafios fechados e loader.
-- Conectar loader (`load_challenges`) ao pipeline de treino/avaliacao.
+- Substituir o stub por modelo de difusao condicional real (sem usar ground truth no episodio).
+- Calibrar sinais/decisao no scheduler e policy com base em entropia/estabilidade/budget.
+- Expandir formatos de `output_format` (grid/som) e integrar executores/verificadores/memoria.
