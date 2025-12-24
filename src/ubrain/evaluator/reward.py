@@ -10,7 +10,7 @@ from ubrain.types import EpisodeResult
 class RewardWeights:
     """Weights for computing reward."""
 
-    difficulty: float = 1.0
+    base_correct: float = 1.0
     cost_scale: float = 1.0
     idk_penalty: float = 0.2
     wrong_confident_penalty: float = 2.0
@@ -18,16 +18,18 @@ class RewardWeights:
 
 def compute_reward(
     result: EpisodeResult,
-    difficulty: float,
     weights: RewardWeights,
     correct: Optional[bool],
 ) -> float:
-    """Compute final reward using quality adjusted by difficulty minus cost."""
+    """Compute final reward using fixed base quality minus cost.
+
+    External reward is simple; most shaping comes from internal satisfaction.
+    """
     quality = 0.0
     if correct is True:
-        quality = result.confidence * weights.difficulty
+        quality = weights.base_correct
     elif correct is False:
-        quality = -weights.wrong_confident_penalty * result.confidence
+        quality = -weights.wrong_confident_penalty
     else:
         quality = 0.0
 
@@ -35,4 +37,4 @@ def compute_reward(
         quality -= weights.idk_penalty
 
     cost = weights.cost_scale * result.budget_used
-    return quality * difficulty - cost
+    return quality - cost

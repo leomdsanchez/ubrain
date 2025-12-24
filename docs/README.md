@@ -41,7 +41,7 @@ Loop cognitivo detalhado
    - Atualizar budget: decrementa a cada passo; pode ficar negativo (divida cognitiva) sem travar loop.  
    - Decidir: continuar | concluir (alta confidence + estabilizacao) | IDK (confidence baixa ou satisfacao caindo).  
 5) Emissao: best_candidate + confidence ou <IDK>.  
-6) Avaliacao externa (treino): reward final = qualidade x difficulty - custo(budget_used), com penalidade forte para erro confiante e frustracao leve em IDK; nao altera o episodio em curso.
+6) Avaliacao externa (treino): reward final = base fixa (acerto/erro/IDK) - custo(budget_used), com penalidade forte para erro confiante e frustracao leve em IDK; nao altera o episodio em curso.
 
 Sinais internos e invariantes
 -----------------------------
@@ -54,15 +54,15 @@ Sinais internos e invariantes
 
 Budget, custo e reward
 ----------------------
-- Reward so no final: qualidade ajustada por dificuldade menos custo proporcional ao budget usado (inclui divida).  
-- Acerto confiante paga alto; erro confiante penaliza forte; IDK gera frustracao leve.  
+- Reward so no final: base fixa (acerto/erro/IDK) menos custo proporcional ao budget usado (inclui divida).  
+- Acerto confiante paga via base; erro confiante penaliza forte; IDK gera frustracao leve.  
 - Pensar mais consome budget; nao ha limite de passos, mas ha custo marginal.  
 - Budget negativo registra custo extra para analise de eficiencia.
 
 Simulacao de 3 ciclos (intuicao)
 --------------------------------
 Premissas: delta de satisfacao = +1 progresso | -1 regressao | -0.2 estagnacao; budget por ciclo = -1; confidence sobe com progresso e cai com regressao; reward so no final.
-- Cenario A (ideal): progresso, progresso, estagnacao leve -> satisfacao 1, 2, 1.8; confidence baixa->media->alta e estavel; budget -3; decide concluir; correto + alta confidence => reward alto (difficulty x acerto - custo moderado).
+- Cenario A (ideal): progresso, progresso, estagnacao leve -> satisfacao 1, 2, 1.8; confidence baixa->media->alta e estavel; budget -3; decide concluir; correto + alta confidence => reward alto (base de acerto - custo moderado).
 - Cenario B (insiste sem evidencias): progresso pequeno, estagnacao, estagnacao -> satisfacao 0.5, 0.3, 0.1; confidence baixa; budget -3; conclui mesmo assim; reward baixo/negativo; aprende que insistir sem evidencias custa.
 - Cenario C (IDK honesto): progresso, regressao, regressao -> satisfacao 1, 0, -1; confidence cai; budget -3; decide IDK; reward levemente negativo (melhor que errar confiante); sai vivo.
 - Cenario D (pecado capital): progresso falso, progresso falso, estagnacao -> satisfacao 1, 2, 1.8; confidence alta e estavel; budget -3; conclui; errado + alta confidence => reward muito negativo; desincentiva se apaixonar por falso padrao.
