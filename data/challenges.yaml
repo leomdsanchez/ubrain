@@ -1,32 +1,32 @@
 # Desafios fechados sem texto livre: apenas logica de sequencia.
-# Formato de saida esperado: "sequence_next" (um unico token).
+# Formato de saida esperado: "token" (um unico token).
 
 - id: seq_letters_forward
   prompt: ["A", "B", "C", "D", "?"]
-  output_format: "sequence_next"
+  output_format: "token"
   ground_truth: "E"
   reward: 1.0
 
 - id: seq_numbers_down_by2
   prompt: [9, 7, 5, 3, "?"]
-  output_format: "sequence_next"
+  output_format: "token"
   ground_truth: 1
   reward: 1.0
 
 - id: seq_alternating_letter_number
   prompt: ["A", 1, "B", 2, "C", "?"]
-  output_format: "sequence_next"
+  output_format: "token"
   ground_truth: 3
   reward: 1.0
 
 - id: seq_fibonacci
   prompt: [1, 1, 2, 3, 5, "?"]
-  output_format: "sequence_next"
+  output_format: "token"
   ground_truth: 8
   reward: 1.0
 
 - id: seq_cycle_repeat
   prompt: [2, 4, 6, 2, 4, "?"]
-  output_format: "sequence_next"
+  output_format: "token"
   ground_truth: 6
   reward: 1.0
