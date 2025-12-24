@@ -1,0 +1,54 @@
+# Desafios fechados iniciais para o cerebro difusivo.
+# Cada item possui enunciado canonico, ground truth unica,
+# formato de saida e peso de dificuldade.
+#
+# Formatos de saida esperados:
+# - sequence_next: responder um unico token seguindo a regra.
+# - boolean: responder true/false.
+# - grid_token: responder um token de grid (para icones simples).
+#
+# Estes exemplos sao simplificados para o PoC de texto/numero.
+
+- id: seq_simple_forward
+  prompt: "A, B, C, D, ?"
+  output_format: "sequence_next"
+  difficulty: 0.2
+  ground_truth: "E"
+
+- id: seq_reverse_numbers
+  prompt: "9, 7, 5, 3, ?"
+  output_format: "sequence_next"
+  difficulty: 0.3
+  ground_truth: "1"
+
+- id: seq_alternate
+  prompt: "A, 1, B, 2, C, ?"
+  output_format: "sequence_next"
+  difficulty: 0.35
+  ground_truth: "3"
+
+- id: parity_check
+  prompt: "O numero 42 e par?"
+  output_format: "boolean"
+  difficulty: 0.15
+  ground_truth: true
+
+- id: fib_next
+  prompt: "1, 1, 2, 3, 5, ?"
+  output_format: "sequence_next"
+  difficulty: 0.4
+  ground_truth: "8"
+
+- id: grid_flip
+  prompt: |
+    Grid 3x3, X marcados:
+    X..
+    .X.
+    ..X
+    Instrucao: responder o grid espelhado horizontalmente.
+  output_format: "grid_token"
+  difficulty: 0.5
+  ground_truth: |
+    ..X
+    .X.
+    X..
