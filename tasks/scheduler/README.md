@@ -18,6 +18,10 @@ Entregaveis
 - Atualizacao em `src/ubrain/scheduler/loop.py`.
 - Testes simples de sinais: entropia cai quando logits se concentram; estagnacao reduz satisfacao; best_candidate so troca quando score melhora.
 
+Estado atual
+------------
+- Loop usa entropia normalizada e estabilidade (TV), mas ainda depende de heuristica de distribuicao; precisa ser recalibrado quando a difusao real estiver pronta. `_extract_candidate` cobre token/boolean; expandir para novos formatos.
+
 Referencias
 -----------
 - `docs/README.md` (fluxo cognitivo, sinais, invariantes).

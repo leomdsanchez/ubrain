@@ -16,6 +16,10 @@ Entregaveis
 - Runner atualizado e documentado em `README.md` (raiz) com comandos de execucao.
 - Testes de integracao basicos (pode ser script ou pytest leve).
 
+Estado atual
+------------
+- `src/ubrain/run_stub.py` roda com `DiscreteDiffusion` por padrao e `--use-heuristic` para o stub heuristico; outputs com confiança/reward ainda refletem heuristicas e devem ser reavaliados apos a difusao/policy reais.
+
 Referencias
 -----------
 - `docs/README.md` (fluxo completo e reward).

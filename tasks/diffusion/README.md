@@ -18,6 +18,10 @@ Entregaveis
 - Classe concreta em `src/ubrain/diffusion/`.
 - Testes unitarios simples: logits normalizados, entropia cai quando evidencias aparecem; nao vazamento de ground truth.
 
+Estado atual
+------------
+- Existem `DiscreteDiffusion` e `HeuristicDiffusion` em `src/ubrain/diffusion/` com testes em `tests/test_diffusion.py`, mas ainda sao heuristicas; precisam ser revisadas para aderir à doc (ruido/mask real e refino condicional).
+
 Referencias
 -----------
 - `docs/README.md` (conceito completo).
