@@ -120,3 +120,69 @@
   output_format: "token"
   ground_truth: 12
   reward: 1.0
+
+- id: seq_primes
+  prompt: [2, 3, 5, 7, "?"]
+  output_format: "token"
+  ground_truth: 11
+  reward: 1.0
+
+- id: seq_triangular_numbers
+  prompt: [1, 3, 6, 10, "?"]
+  output_format: "token"
+  ground_truth: 15
+  reward: 1.0
+
+- id: seq_cubes
+  prompt: [1, 8, 27, 64, "?"]
+  output_format: "token"
+  ground_truth: 125
+  reward: 1.0
+
+- id: seq_geom_double
+  prompt: [3, 6, 12, 24, "?"]
+  output_format: "token"
+  ground_truth: 48
+  reward: 1.0
+
+- id: seq_mod4_cycle
+  prompt: [0, 1, 2, 3, 0, "?"]
+  output_format: "token"
+  ground_truth: 1
+  reward: 1.0
+
+- id: seq_letter_growing_steps
+  prompt: ["A", "B", "D", "G", "K", "?"]
+  output_format: "token"
+  ground_truth: "P"
+  reward: 1.0
+
+- id: seq_mirror_numbers
+  prompt: [1, 2, 3, 3, 2, "?"]
+  output_format: "token"
+  ground_truth: 1
+  reward: 1.0
+
+- id: seq_incrementing_diff
+  prompt: [1, 2, 4, 7, 11, "?"]
+  output_format: "token"
+  ground_truth: 16
+  reward: 1.0
+
+- id: seq_letters_alt_case
+  prompt: ["a", "B", "c", "D", "?"]
+  output_format: "token"
+  ground_truth: "e"
+  reward: 1.0
+
+- id: seq_clock_hours
+  prompt: [10, 11, 12, 1, "?"]
+  output_format: "token"
+  ground_truth: 2
+  reward: 1.0
+
+- id: seq_roman_tens
+  prompt: ["X", "XX", "XXX", "XL", "?"]
+  output_format: "token"
+  ground_truth: "L"
+  reward: 1.0
