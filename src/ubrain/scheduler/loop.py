@@ -47,7 +47,7 @@ class CognitiveLoop:
             budget_used = (step + 1) * self.budget_per_step
             signals.budget = -budget_used
 
-            if best_candidate is None or self._is_better(candidate, best_candidate, signals):
+            if best_candidate is None or self._is_better(candidate, best_candidate, signals, dist):
                 best_candidate = candidate
 
             loop_state = LoopState(
@@ -110,37 +110,45 @@ class CognitiveLoop:
         for p in probs.values():
             entropy -= p * math.log(max(p, eps))
         max_entropy = math.log(max(len(probs), 1))
+        norm_entropy = (entropy / max_entropy) if max_entropy > 0 else 0.0
 
         if prev_dist is None:
             stability = 0.0
         else:
-            stability = 0.0
-            for token, p in probs.items():
-                q = prev_dist.get(token, eps)
-                stability += p * math.log(max(p, eps) / max(q, eps))
-            stability = max(0.0, 1.0 - stability)
+            # estabilidade via distancia total variacao (1 - TV)
+            all_tokens = set(probs.keys()) | set(prev_dist.keys())
+            tv = 0.0
+            for tok in all_tokens:
+                p = probs.get(tok, 0.0)
+                q = prev_dist.get(tok, 0.0)
+                tv += abs(p - q)
+            tv *= 0.5
+            stability = max(0.0, 1.0 - tv)
 
-        confidence = 0.6 * (1 - entropy / max_entropy) + 0.4 * stability if max_entropy > 0 else 0.0
+        confidence = 0.6 * (1 - norm_entropy) + 0.4 * stability
 
         prev_entropy = prev_signals.entropy
-        delta_entropy = prev_entropy - entropy
+        delta_entropy = prev_entropy - norm_entropy
         delta_stability = stability - prev_signals.stability
-        satisfaction = prev_signals.satisfaction + delta_entropy + 0.5 * delta_stability
-        if abs(delta_entropy) < 1e-3 and abs(delta_stability) < 1e-3:
+        progress = delta_entropy + 0.5 * delta_stability
+        satisfaction = prev_signals.satisfaction + progress
+        if abs(progress) < 1e-3:
             satisfaction -= 0.05  # penaliza estagnacao leve
 
         return LoopSignals(
             confidence=max(0.0, min(1.0, confidence)),
-            entropy=max(entropy, 0.0),
+            entropy=max(norm_entropy, 0.0),
             stability=max(0.0, min(1.0, stability)),
             satisfaction=satisfaction,
             budget=prev_signals.budget,
         )
 
-    def _is_better(self, candidate, best_candidate, signals: LoopSignals) -> bool:
+    def _is_better(self, candidate, best_candidate, signals: LoopSignals, dist) -> bool:
         """Decide se o novo candidato melhora o best."""
         if best_candidate is None:
             return True
         if candidate == best_candidate:
             return False
-        return signals.confidence > 0.5 and signals.stability >= 0.3
+        prob_new = dist.get(candidate, 0.0) if isinstance(dist, dict) else 0.0
+        prob_best = dist.get(best_candidate, 0.0) if isinstance(dist, dict) else 0.0
+        return (prob_new > prob_best + 1e-6) and signals.confidence > 0.5 and signals.stability >= 0.2
