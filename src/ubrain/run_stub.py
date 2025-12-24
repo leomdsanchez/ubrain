@@ -4,7 +4,7 @@ import argparse
 
 from ubrain.data.spec import load_challenges
 from ubrain.decision.policy import HeuristicPolicy
-from ubrain.diffusion.stub import EchoSequenceModel
+from ubrain.diffusion.stub import DiffusionStub
 from ubrain.evaluator.reward import RewardWeights, compute_reward
 from ubrain.scheduler.loop import CognitiveLoop
 
@@ -27,7 +27,7 @@ def main():
 
     challenges = load_challenges(args.data)
     loop = CognitiveLoop(
-        model=EchoSequenceModel(),
+        model=DiffusionStub(),
         policy=HeuristicPolicy(),
         max_steps=args.steps,
         budget_per_step=1.0,

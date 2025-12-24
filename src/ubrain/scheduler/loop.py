@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 from typing import Optional
 
 from ubrain.decision.policy import DecisionPolicy
@@ -18,7 +19,7 @@ class CognitiveLoop:
     budget_per_step: float = 1.0
 
     def run_episode(self, challenge: Challenge) -> EpisodeResult:
-        noisy_state = self.model.init_noisy(challenge)
+        dist = self.model.init_noisy(challenge)
         best_candidate: Optional[str] = None
         signals = LoopSignals(
             confidence=0.0,
@@ -30,12 +31,19 @@ class CognitiveLoop:
 
         decision: Decision = "continue"
         candidate = None
+        prev_dist = None
 
         for step in range(self.max_steps):
-            denoised_state, _ = self.model.step(noisy_state, challenge, step)
-            candidate = self._extract_candidate(denoised_state, challenge)
+            dist, logits = self.model.step(dist, challenge, step)
+            candidate = self._extract_candidate(dist, challenge)
 
-            signals = self._estimate_signals(candidate, best_candidate, signals)
+            signals = self._estimate_signals(
+                candidate=candidate,
+                best_candidate=best_candidate,
+                prev_signals=signals,
+                dist=dist,
+                prev_dist=prev_dist,
+            )
             budget_used = (step + 1) * self.budget_per_step
             signals.budget = -budget_used
 
@@ -50,7 +58,7 @@ class CognitiveLoop:
             )
             decision = self.policy.choose(loop_state)
 
-            noisy_state = denoised_state  # feed next step
+            prev_dist = dist
             if decision in ("conclude", "idk"):
                 break
 
@@ -65,78 +73,74 @@ class CognitiveLoop:
             budget_used=budget_used,
         )
 
-    def _extract_candidate(self, denoised_state, challenge: Challenge):
-        """Map model state to task-specific candidate.
-
-        Stub logic for tokens:
-        - For numeric sequences, extrapolates using last difference.
-        - For hex strings, increments in hex.
-        - For single-letter sequences, extrapolates using last difference.
-        - For generic string cycles, repeats the observed pattern.
-        - Fallback: repeat last token.
-        """
-        seq = denoised_state
-        if not isinstance(seq, list):
-            return seq
-
-        tokens = [t for t in seq if t != "?"]
-        if not tokens:
+    def _extract_candidate(self, dist, challenge: Challenge):
+        """Decode candidato a partir da distribuicao e do output_format."""
+        if not isinstance(dist, dict):
+            return dist
+        if not dist:
             return "?"
+        # argmax
+        token = max(dist.items(), key=lambda kv: kv[1])[0]
 
-        last = tokens[-1]
-        # Numeric difference
-        if len(tokens) >= 2 and all(isinstance(t, (int, float)) for t in tokens[-2:]):
-            diff = tokens[-1] - tokens[-2]
-            return tokens[-1] + diff
-
-        # Hex increment
-        if len(tokens) >= 2 and all(isinstance(t, str) and t.startswith("0x") for t in tokens[-2:]):
-            v1, v2 = int(tokens[-1], 16), int(tokens[-2], 16)
-            diff = v1 - v2
-            return hex(v1 + diff)
-
-        # Single-letter increment
-        if len(tokens) >= 2 and all(isinstance(t, str) and len(t) == 1 for t in tokens[-2:]):
-            diff = ord(tokens[-1]) - ord(tokens[-2])
-            return chr(ord(tokens[-1]) + diff)
-
-        # Cycle pattern for strings
-        if all(isinstance(t, str) for t in tokens):
-            pattern = []
-            for t in tokens:
-                if t not in pattern:
-                    pattern.append(t)
-            idx = len(tokens) % len(pattern)
-            return pattern[idx % len(pattern)]
-
-        return last
+        fmt = challenge.output_format
+        if fmt == "boolean":
+            if isinstance(token, bool):
+                return token
+            if isinstance(token, str):
+                low = token.lower()
+                if low in ("true", "t", "1"):
+                    return True
+                if low in ("false", "f", "0"):
+                    return False
+        # default token
+        return token
 
     def _estimate_signals(
         self,
         candidate,
         best_candidate,
         prev_signals: LoopSignals,
+        dist,
+        prev_dist,
     ) -> LoopSignals:
-        """Estimate confidence/entropy/stability/satisfaction without ground truth."""
-        entropy = max(0.0, prev_signals.entropy - 0.1)
-        stability = 1.0 if best_candidate is not None and candidate == best_candidate else 0.0
-        confidence = min(1.0, max(0.0, 0.5 * (1 - entropy) + 0.5 * stability))
-        progress = prev_signals.entropy - entropy
-        satisfaction = prev_signals.satisfaction + progress + (0.2 if stability else -0.05)
+        """Estimate confidence/entropy/stability/satisfaction using distributions."""
+        eps = 1e-8
+        probs = dist if isinstance(dist, dict) else {}
+        entropy = 0.0
+        for p in probs.values():
+            entropy -= p * math.log(max(p, eps))
+        max_entropy = math.log(max(len(probs), 1))
+
+        if prev_dist is None:
+            stability = 0.0
+        else:
+            stability = 0.0
+            for token, p in probs.items():
+                q = prev_dist.get(token, eps)
+                stability += p * math.log(max(p, eps) / max(q, eps))
+            stability = max(0.0, 1.0 - stability)
+
+        confidence = 0.6 * (1 - entropy / max_entropy) + 0.4 * stability if max_entropy > 0 else 0.0
+
+        prev_entropy = prev_signals.entropy
+        delta_entropy = prev_entropy - entropy
+        delta_stability = stability - prev_signals.stability
+        satisfaction = prev_signals.satisfaction + delta_entropy + 0.5 * delta_stability
+        if abs(delta_entropy) < 1e-3 and abs(delta_stability) < 1e-3:
+            satisfaction -= 0.05  # penaliza estagnacao leve
 
         return LoopSignals(
-            confidence=confidence,
-            entropy=entropy,
-            stability=stability,
+            confidence=max(0.0, min(1.0, confidence)),
+            entropy=max(entropy, 0.0),
+            stability=max(0.0, min(1.0, stability)),
             satisfaction=satisfaction,
             budget=prev_signals.budget,
         )
 
     def _is_better(self, candidate, best_candidate, signals: LoopSignals) -> bool:
-        """Decide if the new candidate is an improvement."""
+        """Decide se o novo candidato melhora o best."""
         if best_candidate is None:
             return True
         if candidate == best_candidate:
             return False
-        # Prefer candidates with non-zero stability/confidence.
-        return signals.confidence >= 0.5
+        return signals.confidence > 0.5 and signals.stability >= 0.3
