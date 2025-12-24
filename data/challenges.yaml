@@ -30,3 +30,45 @@
   output_format: "token"
   ground_truth: 6
   reward: 1.0
+
+- id: seq_shapes_cycle
+  prompt: ["square", "circle", "triangle", "square", "circle", "?"]
+  output_format: "token"
+  ground_truth: "triangle"
+  reward: 1.0
+
+- id: seq_shapes_sides_plus_one
+  prompt: ["triangle", "square", "pentagon", "hexagon", "?"]
+  output_format: "token"
+  ground_truth: "heptagon"
+  reward: 1.0
+
+- id: seq_squares_numbers
+  prompt: [1, 4, 9, 16, "?"]
+  output_format: "token"
+  ground_truth: 25
+  reward: 1.0
+
+- id: seq_powers_two
+  prompt: [2, 4, 8, 16, "?"]
+  output_format: "token"
+  ground_truth: 32
+  reward: 1.0
+
+- id: seq_mod_cycle
+  prompt: [1, 2, 0, 1, 2, "?"]
+  output_format: "token"
+  ground_truth: 0
+  reward: 1.0
+
+- id: seq_even_odd_tracks
+  prompt: [2, 5, 4, 7, 6, "?"]
+  output_format: "token"
+  ground_truth: 9
+  reward: 1.0
+
+- id: seq_halving
+  prompt: [64, 32, 16, 8, "?"]
+  output_format: "token"
+  ground_truth: 4
+  reward: 1.0
